@@ -21,7 +21,7 @@ export const Input = styled.TextInput.attrs({
   background: #eee;
   border-radius: 4px;
   padding: 0 15px;
-  border: 1px solid #eee;
+  border: 1px solid ${props => (props.error ? '#ff6b6b' : '#eee')};
   color: #333;
 `;
 
@@ -70,8 +70,14 @@ export const Bio = styled.Text.attrs({
   margin-top: 5px;
   text-align: center;
 `;
+export const Buttons = styled.View`
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+`;
 
 export const ProfileButton = styled(RectButton)`
+  flex: 1;
   margin-top: 10px;
   align-self: stretch;
   border-radius: 4px;
@@ -86,4 +92,24 @@ export const ProfileButtonText = styled.Text`
   font-weight: bold;
   color: #fff;
   text-transform: uppercase;
+`;
+
+export const DelButton = styled(RectButton)`
+  margin-top: 10px;
+  justify-content: center;
+  align-items: center;
+  background: #7159c1;
+  border-radius: 4px;
+  margin-left: 10px;
+  width: 36px;
+  height: 36px;
+`;
+
+export const Aviso = styled.Text`
+  font-size: 14px;
+  font-weight: bold;
+  color: red;
+  text-align: center;
+  margin-top: -25px;
+  margin-bottom: 5px;
 `;

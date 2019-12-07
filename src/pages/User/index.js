@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator } from 'react-native';
+
 import api from '../../services/api';
+
 import {
   Container,
   Header,
@@ -25,12 +27,15 @@ export default class User extends Component {
   static propTypes = {
     navigation: PropTypes.shape({
       getParam: PropTypes.func,
+      navigate: PropTypes.func,
     }).isRequired,
   };
 
   state = {
     stars: [],
     loading: false,
+    page: 1,
+    refreshing: false,
   };
 
   async componentDidMount() {
@@ -44,9 +49,40 @@ export default class User extends Component {
     this.setState({ stars: response.data, loading: false });
   }
 
+  handleNavigate = repository => {
+    const { navigation } = this.props;
+    console.tron.log(this.props);
+    navigation.navigate('Repository', { repository });
+  };
+
+  async loadMore() {
+    const { navigation } = this.props;
+    const user = navigation.getParam('user');
+    const { page, stars } = this.state;
+    const nextPage = page + 1;
+
+    const response = await api.get(
+      `/users/${user.login}/starred?page=${nextPage}`
+    );
+
+    if (response.data) {
+      this.setState({
+        stars: [...stars, ...response.data],
+        loading: false,
+        refreshing: false,
+        page: nextPage,
+      });
+    }
+  }
+
+  refreshList() {
+    this.setState({ refreshing: true, stars: [], loading: true, page: 0 });
+    this.loadMore();
+  }
+
   render() {
     const { navigation } = this.props;
-    const { stars, loading } = this.state;
+    const { stars, loading, refreshing } = this.state;
 
     const user = navigation.getParam('user');
 
@@ -65,9 +101,13 @@ export default class User extends Component {
         ) : (
           <Stars
             data={stars}
+            onEndReachedThreshold={0.2} // Carrega mais itens quando chegar em 20% do fim
+            onEndReached={() => this.loadMore()} // Função que carrega mais itens
+            onRefresh={() => this.refreshList()} // Função dispara quando o usuário arrasta a lista pra baixo
+            refreshing={refreshing} // Variável que armazena um estado true/false que representa se a lista está atualizando
             keyExtractor={star => String(star.id)}
             renderItem={({ item }) => (
-              <Starred>
+              <Starred onPress={() => this.handleNavigate(item)}>
                 <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
                 <Info>
                   <Title>{item.name}</Title>
@@ -75,7 +115,6 @@ export default class User extends Component {
                 </Info>
               </Starred>
             )}
-            onEndReached={() => console.tron.log('fim da lista')}
           />
         )}
       </Container>

@@ -63,7 +63,7 @@ export default class Main extends Component {
 
       const hasUser = users.find(u => u.login === newUser);
 
-      if (hasUser) throw new Error('Usuário já ');
+      if (hasUser) throw new Error('Usuário já cadastrado');
 
       const response = await api.get(`/users/${newUser}`);
 
